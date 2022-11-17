@@ -1,3 +1,5 @@
+manipulation/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -5,7 +7,7 @@ __pycache__/
 .DS_Store
 .idea
 
-# C extensions
+# C extensionsq
 *.so
 
 # Distribution / packaging
