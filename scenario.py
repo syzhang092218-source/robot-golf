@@ -22,14 +22,33 @@ def AddGolfBall(plant):
     ball = plant.AddModelInstance("ball")
     ball_body = plant.AddRigidBody("ball_body", ball,
                                    SpatialInertia(
-                                       mass=0, #0.2, TODO: set back to nonzero after adding terrain
+                                       mass=0.2,  # 0.2, TODO: set back to nonzero after adding terrain
                                        p_PScm_E=np.array([0., 0., 0.]),
                                        G_SP_E=UnitInertia(1.0, 1.0, 1.0)))
     shape = Mesh('robot/golf_ball/golf_ball.obj', scale=0.03)
     if plant.geometry_source_is_registered():
-        plant.RegisterCollisionGeometry(ball_body, RigidTransform(p=[-0.7, 0, 0]), shape, "ball_body", CoulombFriction(mu, mu))
-        plant.RegisterVisualGeometry(ball_body, RigidTransform(p=[-0.7, 0, 0]), shape, "ball_body", [.9, .2, .2, 1.0])
+        plant.RegisterCollisionGeometry(ball_body, RigidTransform(p=[0.7, 1, 1]), shape, "ball_body",
+                                        CoulombFriction(mu, mu))
+        plant.RegisterVisualGeometry(ball_body, RigidTransform(p=[0.7, 1, 1]), shape, "ball_body", [.9, .2, .2, 1.0])
     return ball
+
+
+def AddTerrain(plant):
+    mu = 10.0
+    terrain = plant.AddModelInstance("terrain")
+    terrain_body = plant.AddRigidBody("terrain_body", terrain,
+                                      SpatialInertia(
+                                          mass=0.2,  # 0.2, TODO: set back to nonzero after adding terrain
+                                          p_PScm_E=np.array([0., 0., 0.]),
+                                          G_SP_E=UnitInertia(1.0, 1.0, 1.0)))
+    shape = Mesh('robot/terrain/terrain.obj', scale=0.3)
+    if plant.geometry_source_is_registered():
+        plant.RegisterCollisionGeometry(terrain_body, RigidTransform(p=np.array([0, 0, -0.5])), shape, "ball_body",
+                                        CoulombFriction(mu, mu))
+        plant.RegisterVisualGeometry(terrain_body, RigidTransform(p=np.array([0, 0, -0.5])), shape, "ball_body", [.9, .2, .2, 1.0])
+    plant.WeldFrames(plant.world_frame(), plant.GetFrameByName("terrain_body"))
+    return terrain
+
 
 def AddIiwa(plant):
     sdf_path = 'robot/iiwa/iiwa_with_club.sdf'
@@ -49,6 +68,7 @@ def AddIiwa(plant):
 
     return iiwa
 
+
 def AddIiwaDifferentialIK(builder, plant, frame=None):
     params = DifferentialInverseKinematicsParameters(plant.num_positions(), plant.num_velocities())
     time_step = plant.time_step()
@@ -62,7 +82,7 @@ def AddIiwaDifferentialIK(builder, plant, frame=None):
             (-iiwa14_velocity_limits, iiwa14_velocity_limits))
         # These constants are in body frame
         assert (
-            frame.name() == "iiwa_link_7"
+                frame.name() == "iiwa_link_7"
         ), "Still need to generalize the remaining planar diff IK params for different frames"  # noqa
         params.set_end_effector_velocity_flag(
             [True, False, False, True, False, True])
@@ -103,6 +123,7 @@ def MakeManipulationStation(time_step=0.002):
     parser = Parser(plant)
     AddGolfBall(plant)
     AddIiwa(plant)
+    AddTerrain(plant)
     plant.Finalize()
 
     for i in range(plant.num_model_instances()):
@@ -202,4 +223,3 @@ def MakeManipulationStation(time_step=0.002):
     diagram = builder.Build()
     diagram.set_name("ManipulationStation")
     return diagram
-

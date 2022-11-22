@@ -19,8 +19,6 @@ from pydrake.solvers.mathematicalprogram import BoundingBoxConstraint
 from pydrake.systems.framework import (DiagramBuilder, EventStatus, LeafSystem,
                                        PublishEvent, VectorSystem)
 
-from manipulation import running_as_notebook
-
 # Some GUI code that will be moved into Drake.
 
 
