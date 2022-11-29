@@ -4,19 +4,53 @@ from pydrake.geometry import MeshcatVisualizer, StartMeshcat
 from pydrake.math import RigidTransform, RotationMatrix
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
+from pydrake.all import LeafSystem, AbstractValue, ContactResults, EventStatus
 
 from scenario import (AddGolfBall, AddIiwaDifferentialIK, MakeManipulationStation)
 from meshcat_utils import MeshcatPoseSliders, WsgButton
+from IPython.display import clear_output
+
+
+class PrintContactResults(LeafSystem):
+    """ Helpers for printing contact results
+    """
+    def __init__(self):
+        LeafSystem.__init__(self)
+        self.DeclareAbstractInputPort("contact_results",
+                                      AbstractValue.Make(ContactResults()))
+        self.DeclareForcedPublishEvent(self.Publish)
+
+    def Publish(self, context):
+        formatter = {'float': lambda x: '{:5.2f}'.format(x)}
+        results = self.get_input_port().Eval(context)
+
+        clear_output(wait=True)
+        if results.num_point_pair_contacts()==0:
+            print("no contact")
+        for i in range(results.num_point_pair_contacts()):
+            info = results.point_pair_contact_info(i)
+            pair = info.point_pair()
+            force_string = np.array2string(
+                info.contact_force(), formatter=formatter)
+            print(
+              f"slip speed:{info.slip_speed():.4f}, "
+              f"depth:{pair.depth:.4f}, "
+              f"force:{force_string}\n")
+        return EventStatus.Succeeded()
 
 
 def teleop_3d():
     builder = DiagramBuilder()
-    time_step = 0.001
+    time_step = 0.00001
     station = builder.AddSystem(
         MakeManipulationStation(time_step=time_step))
     plant = station.GetSubsystemByName("plant")
     controller_plant = station.GetSubsystemByName(
         "iiwa_controller").get_multibody_plant_for_control()
+
+    print_contact_results = builder.AddSystem(PrintContactResults())
+    builder.Connect(plant.get_contact_results_output_port(),
+                    print_contact_results.get_input_port())
 
     # Add a meshcat visualizer.
     visualizer = MeshcatVisualizer.AddToBuilder(
@@ -50,13 +84,15 @@ def teleop_3d():
     # builder.Connect(wsg_teleop.get_output_port(0),
     #                 station.GetInputPort("wsg_position"))
 
+
+
     diagram = builder.Build()
     simulator = Simulator(diagram)
     context = simulator.get_mutable_context()
 
     # if running_as_notebook:  # Then we're not just running as a test on CI.
-    simulator.set_target_realtime_rate(1.0)
-    diagram.Publish(context)
+    simulator.set_target_realtime_rate(0.1)
+    diagram.ForcedPublish(context)
 
     meshcat.AddButton("Stop Simulation", "Escape")
     print("Press Escape to stop the simulation")

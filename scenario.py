@@ -22,14 +22,16 @@ def AddGolfBall(plant):
     ball = plant.AddModelInstance("ball")
     ball_body = plant.AddRigidBody("ball_body", ball,
                                    SpatialInertia(
-                                       mass=0.2,  # 0.2, TODO: set back to nonzero after adding terrain
+                                       mass=0.001,  # 0.2, TODO: set back to nonzero after adding terrain
                                        p_PScm_E=np.array([0., 0., 0.]),
                                        G_SP_E=UnitInertia(1.0, 1.0, 1.0)))
     shape = Mesh('robot/golf_ball/golf_ball.obj', scale=0.03)
     if plant.geometry_source_is_registered():
-        plant.RegisterCollisionGeometry(ball_body, RigidTransform(p=[0.7, 1, 1]), shape, "ball_body",
+        print('register geometric for golf')
+        plant.RegisterCollisionGeometry(ball_body, RigidTransform(p=np.array([0.7, 1, 1.5])), shape, "ball_body",
                                         CoulombFriction(mu, mu))
-        plant.RegisterVisualGeometry(ball_body, RigidTransform(p=[0.7, 1, 1]), shape, "ball_body", [.9, .2, .2, 1.0])
+        plant.RegisterVisualGeometry(ball_body, RigidTransform(p=np.array([0.7, 1, 1])), shape, "ball_body",
+                                     [.9, .2, .2, 1.0])
     return ball
 
 
@@ -38,14 +40,16 @@ def AddTerrain(plant):
     terrain = plant.AddModelInstance("terrain")
     terrain_body = plant.AddRigidBody("terrain_body", terrain,
                                       SpatialInertia(
-                                          mass=0.2,  # 0.2, TODO: set back to nonzero after adding terrain
+                                          mass=0.0,
                                           p_PScm_E=np.array([0., 0., 0.]),
                                           G_SP_E=UnitInertia(1.0, 1.0, 1.0)))
     shape = Mesh('robot/terrain/terrain.obj', scale=0.3)
     if plant.geometry_source_is_registered():
+        print('register geometric for terrain')
         plant.RegisterCollisionGeometry(terrain_body, RigidTransform(p=np.array([0, 0, -0.5])), shape, "ball_body",
                                         CoulombFriction(mu, mu))
-        plant.RegisterVisualGeometry(terrain_body, RigidTransform(p=np.array([0, 0, -0.5])), shape, "ball_body", [.9, .2, .2, 1.0])
+        plant.RegisterVisualGeometry(terrain_body, RigidTransform(p=np.array([0, 0, -0.5])), shape, "ball_body",
+                                     [.9, .2, .2, 1.0])
     plant.WeldFrames(plant.world_frame(), plant.GetFrameByName("terrain_body"))
     return terrain
 
@@ -98,6 +102,7 @@ def AddIiwaDifferentialIK(builder, plant, frame=None):
             plant,
             frame,
             time_step,
+
             params,
             log_only_when_result_state_changes=True))
     return differential_ik
