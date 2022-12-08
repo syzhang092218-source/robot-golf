@@ -1,4 +1,5 @@
 manipulation/
+robot/terrain/terrain_with_hole.obj
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
