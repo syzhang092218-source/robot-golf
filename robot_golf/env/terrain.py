@@ -5,22 +5,30 @@ import trimesh
 import trimesh.creation
 import trimesh.boolean
 
-
-TERRAIN_FILE = 'data/terrain/terrain.obj'
-TERRAIN_WITH_HOLE_FILE = 'data/terrain/terrain_with_hole.obj'
+from .prefix import TERRAIN_FILE, TERRAIN_WITH_HOLE_FILE
 
 
-def make_terrain(ball_radius: float):
+def make_terrain(hole_radius: float):
     cur_path = os.path.dirname(__file__)
 
     # add random hole in the terrain
     terrain_scale = 0.3
     terrain_mesh = trimesh.load(os.path.join(cur_path, TERRAIN_FILE))
-    hole_mesh = trimesh.creation.capsule(radius=ball_radius / terrain_scale, height=4)
+
+    hole_pos_constraint = [np.array([70, 10, 0.001]), np.array([90, 60, 10])]
+    found = False
+    vertex_id = 0
+    while not found:
+        vertex_id = np.random.randint(terrain_mesh.vertices.shape[0])
+        if (hole_pos_constraint[0] <= terrain_mesh.vertices[vertex_id]).all() and \
+                (terrain_mesh.vertices[vertex_id] <= hole_pos_constraint[1]).all():
+            found = True
+    hole_pos = terrain_mesh.vertices[vertex_id]
+
+    hole_mesh = trimesh.creation.capsule(radius=hole_radius / terrain_scale, height=4.2)
     hole_mesh.visual.face_colors = [0.5, 0.5, 0.5, 0.5]
     hole_mesh.apply_transform(trimesh.transformations.rotation_matrix(np.pi, [0, 1, 0]))
-    hole_pos = np.random.rand(2) * np.array([20, 50]) + np.array([70, 10])
-    hole_mesh.apply_translation(np.concatenate([hole_pos, np.array([5])]))
+    hole_mesh.apply_translation(np.concatenate([hole_pos[:2], np.array([5])]))
     terrain_with_hole_mesh = trimesh.boolean.difference([terrain_mesh, hole_mesh])
     terrain_with_hole_mesh.export(os.path.join(cur_path, TERRAIN_WITH_HOLE_FILE))
 
@@ -37,10 +45,11 @@ def make_terrain(ball_radius: float):
         meshScale=[terrain_scale, terrain_scale, terrain_scale],
         rgbaColor=[54 / 256, 196 / 256, 79 / 256, 0.55]
     )
+    terrain_base_pos = np.array([-10, -10, -.8])
     terrainId = p.createMultiBody(baseMass=0,
                                   baseCollisionShapeIndex=terrainColId,
                                   baseVisualShapeIndex=terrainVisID,
-                                  basePosition=[-10, -10, -.8],
+                                  basePosition=list(terrain_base_pos),
                                   baseOrientation=[0, 0, 0, 1])
 
-    return terrainId, hole_pos
+    return terrainId, hole_pos * terrain_scale + terrain_base_pos

@@ -6,8 +6,7 @@ import pybullet_data
 from .terrain import make_terrain
 
 
-IIWA_FILE = 'data/kuka_iiwa/model_0.urdf'
-BALL_FILE = 'data/golf_ball/golf_ball.obj'
+from .prefix import IIWA_FILE, BALL_FILE
 
 
 def create_env(ball_pos, GUI=False):
@@ -20,7 +19,7 @@ def create_env(ball_pos, GUI=False):
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
     # terrain
-    terrainId, hole_pos = make_terrain(ball_radius=0.1)
+    terrainId, hole_pos = make_terrain(hole_radius=0.1)
 
     # tee holder
     teeColId = p.createCollisionShape(p.GEOM_CYLINDER, height=0.2, radius=0.03)
@@ -53,4 +52,4 @@ def create_env(ball_pos, GUI=False):
     p.setCollisionFilterPair(teeId, terrainId, -1, -1, 0)
     for link_index in range(-1, 2):
         p.setCollisionFilterPair(iiwaId, terrainId, link_index, -1, 0)
-    return iiwaId, ballId
+    return iiwaId, ballId, terrainId, hole_pos
