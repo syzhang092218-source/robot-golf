@@ -1,7 +1,7 @@
 import pybullet as p
 import time
 
-from scenario import create_env
+from robot_golf.env import create_env
 
 
 if __name__ == "__main__":

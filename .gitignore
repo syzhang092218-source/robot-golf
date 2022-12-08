@@ -1,5 +1,5 @@
 manipulation/
-robot/terrain/terrain_with_hole.obj
+robot_golf/env/data/terrain/terrain_with_hole.obj
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -109,7 +109,6 @@ celerybeat.pid
 # Environments
 .env
 .venv
-env/
 venv/
 ENV/
 env.bak/
