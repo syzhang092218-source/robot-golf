@@ -5,7 +5,8 @@ import numpy as np
 from robot_golf.env import create_env
 from robot_golf.env.prefix import GRAVITY
 from robot_golf.env.ball import ball_aerodynamics
-from robot_golf.planner.ball_shooting import solve_init_velocity
+from robot_golf.planner.robot import get_club_init_transform
+from robot_golf.planner.ball import solve_init_velocity
 
 
 if __name__ == "__main__":
@@ -20,7 +21,7 @@ if __name__ == "__main__":
     for _ in range(100):
         p.stepSimulation()
 
-    v_init, dt = solve_init_velocity(
+    v_ball_init, dt = solve_init_velocity(
         hole_pos=hole_pos - np.array(p.getBasePositionAndOrientation(ball_id)[0]),
         hole_radius=0.1,
         ball_radius=0.08,
@@ -28,7 +29,13 @@ if __name__ == "__main__":
         v_constraint=[np.array([-100000, -100000, 0]), np.array([100000, 100000, 100000])]
     )
     p.setTimeStep(dt)
-    p.resetBaseVelocity(ball_id, v_init)
+
+    ball_center = p.getBasePositionAndOrientation(ball_id)[0]
+    club_init_X = get_club_init_transform(ball_pos, v_ball_init)
+    p.calculateInverseKinematics(robot_id, 7, club_init_X[0], club_init_X[1])
+
+    p.setJointMotorControl2(robot_id, 7, p.POSITION_CONTROL, )
+    p.resetBaseVelocity(ball_id, v_ball_init)
 
     while True:
         p.stepSimulation()
