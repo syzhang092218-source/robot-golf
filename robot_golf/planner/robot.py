@@ -35,3 +35,16 @@ def get_club_init_transform(contact_point, v_ball_init, robot_id):
     X_WL = p.multiplyTransforms(X_WC[0], X_WC[1], X_CL[0], X_CL[1])
 
     return X_WL
+
+
+def solve_axis_align_ik(robot_id, club_link_id, X_WL, v_ball_init):
+    base_x_joint = 0
+    base_y_joint = 1
+    base_theta_joint = 2
+
+    v_ball_align = np.array([np.linalg.norm(v_ball_init[:2]), 0, v_ball_init[2]])
+
+    sol = p.calculateInverseKinematics(robot_id, club_link_id, X_WL[0], X_WL[1])
+    return sol
+    # return [x, y, theta] + list(sol[3:])
+
