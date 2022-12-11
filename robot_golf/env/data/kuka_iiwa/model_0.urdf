@@ -49,7 +49,22 @@
   </material>
   <material name="Blue">
   <color rgba="0.5 0.7 1.0 1.0"/>      
-</material>
+  </material>
+
+  <link name="world_link"/>
+  <link name="base_link_0"/>
+  <joint name="x" type="prismatic">
+    <parent link="world_link"/>
+    <child link="base_link_0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-2" upper="2" velocity="0"/>
+  </joint>
+  <joint name="y" type="prismatic">
+    <parent link="base_link_0"/>
+    <child link="lbr_iiwa_link_0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-2" upper="2" velocity="1.0"/>
+  </joint>
 
   <!--Import the lbr iiwa macro -->
   <!--Import Transmissions -->
@@ -256,7 +271,7 @@
     </collision>
   </link>
   <!-- joint between link_6 and link_7 -->
-  <joint name="lbr_iiwa_joint_7" type="revolute">
+  <joint name="lbr_iiwa_joint_7" type="fixed">
     <parent link="lbr_iiwa_link_6"/>
     <child link="lbr_iiwa_link_7"/>
     <origin rpy="-1.57079632679 3.14159265359 0" xyz="0 0.081 0"/>
@@ -298,14 +313,14 @@
       <inertia ixx="0.0004" ixy="0" ixz="0" iyy="0.0004" iyz="0" izz="0.0005"/>
     </inertial>
     <visual>
-      <origin rpy="0 3.5 0" xyz="0.02 0 0.15"/>
+      <origin rpy="0 3.5 1.57" xyz="0.0 0.02 0.15"/>
       <geometry>
         <mesh filename="meshes/golf_club.obj" scale="0.01 0.01 0.01"/>
       </geometry>
       <material name="Grey"/>
     </visual>
     <collision>
-      <origin rpy="0 3.5 0" xyz="0.02 0 0.15"/>
+      <origin rpy="0 3.5 1.57" xyz="0.0 0.02 0.15"/>
       <geometry>
         <mesh filename="meshes/golf_club.obj" scale="0.01 0.01 0.01"/>
       </geometry>

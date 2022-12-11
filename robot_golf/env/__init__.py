@@ -6,7 +6,7 @@ import pybullet_data
 from .terrain import make_terrain
 
 
-from .prefix import IIWA_FILE, BALL_FILE
+from .prefix import IIWA_FILE, BALL_FILE, BALL_COLLISION_RADIUS
 
 
 def create_env(ball_pos, GUI=False):
@@ -31,13 +31,11 @@ def create_env(ball_pos, GUI=False):
                               baseOrientation=[0, 0, 0, 1])
 
     # ball
-    ballColId = p.createCollisionShape(p.GEOM_MESH,
-                                       fileName=os.path.join(cur_path, BALL_FILE),
-                                       meshScale=[0.03, 0.03, 0.03])
+    ballColId = p.createCollisionShape(p.GEOM_SPHERE, radius=BALL_COLLISION_RADIUS)
     ballVisID = p.createVisualShape(p.GEOM_MESH,
                                     fileName=os.path.join(cur_path, BALL_FILE),
                                     meshScale=[0.03, 0.03, 0.03])
-    ballId = p.createMultiBody(baseMass=0.02,
+    ballId = p.createMultiBody(baseMass=0.002,
                                baseCollisionShapeIndex=ballColId,
                                baseVisualShapeIndex=ballVisID,
                                basePosition=ball_pos,
