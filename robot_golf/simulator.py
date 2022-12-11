@@ -36,11 +36,9 @@ def set_simulator(ball_pos):
     # v_ball_init = np.array([1, 0, 0])
 
     ball_center = np.array(p.getBasePositionAndOrientation(ball_id)[0])
-    contact_point_pre = ball_center - (BALL_COLLISION_RADIUS + 0.005) * np.array([np.linalg.norm(v_ball_init[:2]), 0, v_ball_init[2]]) / np.linalg.norm(v_ball_init)
-    X_WL_pre = get_club_init_transform(contact_point_pre, v_ball_init, robot_id)
 
     # robot initial position
     p.resetJointState(robot_id, 0, -2, 0)
     p.stepSimulation()
 
-    return robot_id, ball_id, X_WL_pre, v_ball_init
+    return robot_id, ball_id, ball_center, v_ball_init
