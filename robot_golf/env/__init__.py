@@ -50,4 +50,6 @@ def create_env(ball_pos, GUI=False):
     p.setCollisionFilterPair(teeId, terrainId, -1, -1, 0)
     for link_index in range(-1, 2):
         p.setCollisionFilterPair(iiwaId, terrainId, link_index, -1, 0)
+    for link_index in range(p.getNumJoints(iiwaId)):
+        p.setCollisionFilterPair(iiwaId, teeId, link_index, -1, 0)
     return iiwaId, ballId, terrainId, hole_pos

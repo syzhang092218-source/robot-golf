@@ -7,7 +7,7 @@ CLUB_FILE = 'data/kuka_iiwa/meshes/golf_club.obj'
 
 # constants
 GRAVITY = -9.81
-AIR_DAMPING = 0.8
+AIR_DAMPING = 0.1
 
 # model key points
 HIT_FACE_ID = 839
