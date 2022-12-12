@@ -3,6 +3,8 @@ import pybullet_data
 import time
 import numpy as np
 import scipy
+import torch
+import matplotlib.pyplot as plt
 
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn import linear_model
@@ -13,6 +15,8 @@ from robot_golf.planner.robot import get_club_init_transform
 from robot_golf.simulator import set_simulator
 
 from sys_id import prepare, generate_data
+from robot_golf.sys_id.predictor import QDotPredictor
+from robot_golf.sys_id.dyn_trainer import DynTrainer
 
 
 if __name__ == "__main__":
@@ -34,40 +38,77 @@ if __name__ == "__main__":
     robot_id, joint_pos, ball_id, v_ball_init = prepare(ball_pos)
 
     # fitting
-    valid_qdots = np.load('qdots.npy', allow_pickle=True)
+    valid_qdots = np.load('robot_golf/sys_id/data/qdots_6300.npy', allow_pickle=True)
     valid_qdots = valid_qdots.astype(np.float64)
-    valid_vs = np.load('vs.npy', allow_pickle=True)
+    valid_vs = np.load('robot_golf/sys_id/data/vs_6300.npy', allow_pickle=True)
     valid_vs = valid_vs.astype(np.float64)
 
     input_all = valid_vs.copy()
     output_x = valid_qdots[:, 0]
     output_y = valid_qdots[:, 1]
 
-    poly_second_order = PolynomialFeatures(degree=2)
-    input_second_order = poly_second_order.fit_transform(input_all)
-
-    clf_second_order_x = linear_model.LinearRegression()
-    clf_second_order_x.fit(input_second_order, output_x)
-    clf_second_order_y = linear_model.LinearRegression()
-    clf_second_order_y.fit(input_second_order, output_y)
+    # poly_second_order = PolynomialFeatures(degree=1)
+    # input_second_order = poly_second_order.fit_transform(input_all)
+    #
+    # clf_second_order_x = linear_model.LinearRegression()
+    # clf_second_order_x.fit(input_second_order, output_x)
+    # clf_second_order_y = linear_model.LinearRegression()
+    # clf_second_order_y.fit(input_second_order, output_y)
 
     # test
-    test_input_all = np.array(v_ball_init).reshape(1, -1)
-    test_input_second_order = poly_second_order.fit_transform(test_input_all)
-    # qdot_1_coef = [0., 1.09470062, 5.92428558, 3.11208748, -0.34473883, -0.41970851, 0.02019625, 0.37260651, -0.12307135, -0.23749958]
-    # qdot_2_coef = [0., 4.10949569, -7.64972368, 3.16672815, -0.35112686, 0.82761246, -0.32129703, -1.81880136, 0.62503639, -0.1596113]
-    # clf_second_order_x.set_params(qdot_1_coef)
-    # clf_second_order_y.set_params(qdot_2_coef)
-    qdot_1 = clf_second_order_x.predict(test_input_second_order)
-    qdot_2 = clf_second_order_y.predict(test_input_second_order)
+    # test_input_all = np.array(v_ball_init).reshape(1, -1)
+    # test_input_second_order = poly_second_order.fit_transform(test_input_all)
+    # # qdot_1_coef = [0., 1.09470062, 5.92428558, 3.11208748, -0.34473883, -0.41970851, 0.02019625, 0.37260651, -0.12307135, -0.23749958]
+    # # qdot_2_coef = [0., 4.10949569, -7.64972368, 3.16672815, -0.35112686, 0.82761246, -0.32129703, -1.81880136, 0.62503639, -0.1596113]
+    # # clf_second_order_x.set_params(qdot_1_coef)
+    # # clf_second_order_y.set_params(qdot_2_coef)
+    # qdot_1 = clf_second_order_x.predict(test_input_second_order)
+    # qdot_2 = clf_second_order_y.predict(test_input_second_order)
+
+    # ransac
+    ransac_qdot1 = linear_model.RANSACRegressor(max_trials=1000000, residual_threshold=2)
+    ransac_qdot1.fit(input_all, valid_qdots[:, 0])
+    ransac_qdot2 = linear_model.RANSACRegressor()
+    ransac_qdot2.fit(input_all, valid_qdots[:, 1])
+    qdot_1 = ransac_qdot1.predict(v_ball_init.reshape(1, -1))[0]
+    qdot_2 = ransac_qdot2.predict(v_ball_init.reshape(1, -1))[0]
+
+    inlier_mask = ransac_qdot1.inlier_mask_
+    outlier_mask = np.logical_not(inlier_mask)
+
+    # ax = plt.axes(projection='3d')
+    #
+    # # ax.scatter(valid_qdots[outlier_mask, 0], valid_qdots[outlier_mask, 1], valid_vs[outlier_mask, 2], alpha=0.3)
+    # ax.scatter(valid_qdots[inlier_mask, 0], valid_qdots[inlier_mask, 1], valid_vs[inlier_mask, 2], c='red', alpha=0.3)
+    # ax.set_xlabel('qdot1')
+    # ax.set_ylabel('qdot2')
+    # ax.set_zlabel('vx')
+    # ax.view_init(elev=0, azim=-90)
+    #
+    # plt.show()
 
     # v_id = np.argpartition(np.linalg.norm(valid_vs - v_ball_init, axis=1), 5)[:5]
-    # q_dot_1_interp = scipy.interpolate.LinearNDInterpolator(valid_vs[v_id], valid_qdots[v_id, 0])
-    # q_dot_2_interp = scipy.interpolate.LinearNDInterpolator(valid_vs[v_id], valid_qdots[v_id, 1])
-    # q_dots = [q_dot_1_interp(v_ball_init),
-    #           q_dot_2_interp(v_ball_init)]
+    # # q_dot_1_interp = scipy.interpolate.LinearNDInterpolator(valid_vs[v_id], valid_qdots[v_id, 0])
+    # # q_dot_2_interp = scipy.interpolate.LinearNDInterpolator(valid_vs[v_id], valid_qdots[v_id, 1])
+    # # q_dots = [q_dot_1_interp(v_ball_init),
+    # #           q_dot_2_interp(v_ball_init)]
+    # q_dot_1 = valid_qdots[v_id, 0]
+    # q_dot_2 = valid_qdots[v_id, 1]
+    # print('xxxxxxxxxx')
+    # print(v_ball_init)
+    # print(valid_vs[v_id])
 
+    # learn dynamics
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    qdot_predictor = QDotPredictor(device=device).to(device)
+    dyn_trainer = DynTrainer(qdot_predictor, device, qdots=valid_qdots[inlier_mask,:], vs=valid_vs[inlier_mask, :])
+    # dyn_trainer.train(n_iter=40960)
 
+    # qdot_predictor.load_state_dict(torch.load('./sys_id_model/40960.pkl', map_location=device))
+    qdot_predictor = torch.load('./sys_id_model/40960.pkl', map_location=device)
+    qdots = qdot_predictor(torch.tensor(v_ball_init, device=device).unsqueeze(0).type(torch.float))
+    qdot_1 = qdots[0, 0]
+    qdot_2 = qdots[0, 1]
 
     n_joints = p.getNumJoints(robot_id)
     club_link_id = n_joints - 1
@@ -88,8 +129,8 @@ if __name__ == "__main__":
 
 
 
-        p.addUserDebugPoints([p.getBasePositionAndOrientation(ball_id)[0]], [[1, 0, 0]], pointSize=5)
-        p.addUserDebugPoints([p.getLinkState(robot_id, club_link_id)[0]], [[0, 0, 1]], pointSize=5)
+        p.addUserDebugPoints([p.getBasePositionAndOrientation(ball_id)[0]], [[1, 0, 0]], pointSize=3)
+        # p.addUserDebugPoints([p.getLinkState(robot_id, club_link_id)[0]], [[0, 0, 1]], pointSize=5)
 
         if pre_hit_flag and len(p.getContactPoints(robot_id, ball_id, club_link_id, -1)) > 0 and p.getContactPoints(robot_id, ball_id, club_link_id, -1)[0][9] >= 0:
             pre_hit_flag = False
@@ -103,6 +144,7 @@ if __name__ == "__main__":
             else:
                 continuous_seperation += 1
                 if continuous_seperation > 5:
+                    # pass
                     print('--------')
                     print(v_ball_init)
                     print(velocity[-5])

@@ -20,7 +20,7 @@ def set_simulator(ball_pos):
     p.changeDynamics(ball_id, linkIndex=-1, linearDamping=0, contactDamping=1, contactStiffness=100, restitution=0.98,
                      lateralFriction=0., spinningFriction=0., rollingFriction=0.)
     p.changeDynamics(terrainId, linkIndex=-1, contactDamping=1, contactStiffness=100, restitution=0.02,
-                     lateralFriction=0.3, spinningFriction=0.3, rollingFriction=0.3)
+                     lateralFriction=1, spinningFriction=1, rollingFriction=1)
 
     # wait for the ball to land on the tee holder
     for _ in range(int(1/TIMESTEP)):

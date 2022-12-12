@@ -1,6 +1,5 @@
 import os
 import pybullet as p
-import numpy as np
 import pybullet_data
 
 from .terrain import make_terrain
@@ -13,7 +12,7 @@ def create_env(ball_pos):
     cur_path = os.path.dirname(__file__)
 
     # terrain
-    terrainId, hole_pos = make_terrain(hole_radius=0.15)
+    terrainId, hole_pos = make_terrain(hole_radius=0.14)
 
     # tee holder
     teeColId = p.createCollisionShape(p.GEOM_CYLINDER, height=0.2, radius=0.03)
