@@ -15,8 +15,8 @@ def make_terrain(hole_radius: float):
     terrain_scale = 0.3
     terrain_mesh = trimesh.load(os.path.join(cur_path, TERRAIN_FILE))
 
-    # hole_pos_constraint = [np.array([70, 10, 0.001]), np.array([90, 60, 10])]
-    hole_pos_constraint = [np.array([35, 10, 0.001]), np.array([40, 60, 10])]
+    hole_pos_constraint = [np.array([50, 30, 0.001]), np.array([60, 40, 10])]
+    # hole_pos_constraint = [np.array([35, 10, 0.001]), np.array([40, 60, 10])]
     # hole_pos_constraint = [np.array([35, 30, 0.001]), np.array([40, 32, 10])]
     found = False
     vertex_id = 0

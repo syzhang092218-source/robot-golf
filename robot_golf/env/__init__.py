@@ -9,17 +9,11 @@ from .terrain import make_terrain
 from .prefix import IIWA_FILE, BALL_FILE, BALL_COLLISION_RADIUS
 
 
-def create_env(ball_pos, GUI=False):
+def create_env(ball_pos):
     cur_path = os.path.dirname(__file__)
-    # init
-    if GUI:
-        p.connect(p.GUI, options='--background_color_red=1.0 --background_color_green=1.0 --background_color_blue=1.0')
-    else:
-        p.connect(p.DIRECT)
-    p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
     # terrain
-    terrainId, hole_pos = make_terrain(hole_radius=0.1)
+    terrainId, hole_pos = make_terrain(hole_radius=0.15)
 
     # tee holder
     teeColId = p.createCollisionShape(p.GEOM_CYLINDER, height=0.2, radius=0.03)

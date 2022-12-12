@@ -11,7 +11,7 @@ from .planner.ball import solve_init_velocity
 
 def set_simulator(ball_pos):
     """SET UP SIMULATOR & CALCULATE TARGET INIT BALL VELOCITY"""
-    robot_id, ball_id, terrainId, hole_pos = create_env(ball_pos=ball_pos, GUI=True)
+    robot_id, ball_id, terrainId, hole_pos = create_env(ball_pos=ball_pos)
 
     n_joints = p.getNumJoints(robot_id)
     club_link_id = n_joints - 1
@@ -19,7 +19,8 @@ def set_simulator(ball_pos):
     p.setTimeStep(TIMESTEP)
     p.changeDynamics(ball_id, linkIndex=-1, linearDamping=0, contactDamping=1, contactStiffness=100, restitution=0.98,
                      lateralFriction=0., spinningFriction=0., rollingFriction=0.)
-    p.changeDynamics(terrainId, linkIndex=-1, contactDamping=1, contactStiffness=100, restitution=0.1)
+    p.changeDynamics(terrainId, linkIndex=-1, contactDamping=1, contactStiffness=100, restitution=0.02,
+                     lateralFriction=0.3, spinningFriction=0.3, rollingFriction=0.3)
 
     # wait for the ball to land on the tee holder
     for _ in range(int(1/TIMESTEP)):
