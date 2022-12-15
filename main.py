@@ -28,18 +28,8 @@ if __name__ == "__main__":
     GUI = True
     # init
     p.connect(p.GUI, options='--background_color_red=1.0 --background_color_green=1.0 --background_color_blue=1.0')
-    # p.connect(p.DIRECT)
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
-
     ball_pos = np.array([0.0, -0.5, 0.35])
-
-    # v_balls = []
-    # for i in range(100):
-    #     robot_id, joint_pos, ball_id, v_ball_init = prepare(ball_pos)
-    #     v_balls.append(v_ball_init)
-    #     p.resetSimulation()
-    # print(f'v_mean: {np.mean(v_balls)}')
-
     robot_id, joint_pos, ball_id, v_ball_init, hole_pos = prepare(ball_pos)
 
     # fitting
@@ -51,24 +41,6 @@ if __name__ == "__main__":
     input_all = valid_vs.copy()
     output_x = valid_qdots[:, 0]
     output_y = valid_qdots[:, 1]
-
-    # poly_second_order = PolynomialFeatures(degree=1)
-    # input_second_order = poly_second_order.fit_transform(input_all)
-    #
-    # clf_second_order_x = linear_model.LinearRegression()
-    # clf_second_order_x.fit(input_second_order, output_x)
-    # clf_second_order_y = linear_model.LinearRegression()
-    # clf_second_order_y.fit(input_second_order, output_y)
-
-    # test
-    # test_input_all = np.array(v_ball_init).reshape(1, -1)
-    # test_input_second_order = poly_second_order.fit_transform(test_input_all)
-    # # qdot_1_coef = [0., 1.09470062, 5.92428558, 3.11208748, -0.34473883, -0.41970851, 0.02019625, 0.37260651, -0.12307135, -0.23749958]
-    # # qdot_2_coef = [0., 4.10949569, -7.64972368, 3.16672815, -0.35112686, 0.82761246, -0.32129703, -1.81880136, 0.62503639, -0.1596113]
-    # # clf_second_order_x.set_params(qdot_1_coef)
-    # # clf_second_order_y.set_params(qdot_2_coef)
-    # qdot_1 = clf_second_order_x.predict(test_input_second_order)
-    # qdot_2 = clf_second_order_y.predict(test_input_second_order)
 
     # ransac
     ransac_qdot1 = linear_model.RANSACRegressor(max_trials=1000000, residual_threshold=2)
