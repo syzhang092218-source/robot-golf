@@ -35,14 +35,15 @@ def get_club_init_transform(contact_point, v_ball_init, robot_id):
     X_WL = p.multiplyTransforms(X_WC[0], X_WC[1], X_CL[0], X_CL[1])
 
     # # debug hitting frame
-    # X_LH = p.multiplyTransforms(X_LC[0], X_LC[1], X_CH[0], X_CH[1])
-    # p_LH = np.array(X_LH[0])
-    # for axis in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]:
-    #     # y to be parallel with y-axis
-    #     # z for contact normal
-    #     direction = p.multiplyTransforms([0, 0, 0], X_LH[1], axis, [0, 0, 0, 1])
-    #     p.addUserDebugLine(p_LH, p_LH + np.array(direction[0]), lineColorRGB=axis, lineWidth=0.2,
-    #                        parentObjectUniqueId=robot_id, parentLinkIndex=9)
+    X_LH = p.multiplyTransforms(X_LC[0], X_LC[1], X_CH[0], X_CH[1])
+    p_LH = np.array(X_LH[0]) + np.array([0, 0, -0.02])
+    # p_LH = np.array(X_CH[0])
+    for axis in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]:
+        # y to be parallel with y-axis
+        # z for contact normal
+        direction = p.multiplyTransforms([0, 0, 0], X_LH[1], axis, [0, 0, 0, 1])
+        p.addUserDebugLine(p_LH, p_LH + np.array(direction[0])*0.2, lineColorRGB=axis, lineWidth=3,
+                           parentObjectUniqueId=robot_id, parentLinkIndex=9)
 
     return X_WL
 

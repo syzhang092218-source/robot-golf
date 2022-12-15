@@ -42,4 +42,4 @@ def set_simulator(ball_pos):
     p.resetJointState(robot_id, 0, -2, 0)
     p.stepSimulation()
 
-    return robot_id, ball_id, ball_center, v_ball_init
+    return robot_id, ball_id, ball_center, v_ball_init, hole_pos
