@@ -15,7 +15,9 @@ def make_terrain(hole_radius: float):
     terrain_scale = 0.3
     terrain_mesh = trimesh.load(os.path.join(cur_path, TERRAIN_FILE))
 
-    hole_pos_constraint = [np.array([70, 10, 0.001]), np.array([90, 60, 10])]
+    hole_pos_constraint = [np.array([50, 30, 0.001]), np.array([60, 40, 10])]
+    # hole_pos_constraint = [np.array([35, 10, 0.001]), np.array([40, 60, 10])]
+    # hole_pos_constraint = [np.array([35, 30, 0.001]), np.array([40, 32, 10])]
     found = False
     vertex_id = 0
     while not found:
@@ -24,11 +26,17 @@ def make_terrain(hole_radius: float):
                 (terrain_mesh.vertices[vertex_id] <= hole_pos_constraint[1]).all():
             found = True
     hole_pos = terrain_mesh.vertices[vertex_id]
+    hole_pos = terrain_mesh.vertices[44826]
 
     hole_mesh = trimesh.creation.capsule(radius=hole_radius / terrain_scale, height=4.2)
+    cone_mesh = trimesh.creation.cone(radius=hole_radius*5 / terrain_scale, height=2)
+    cone_mesh.apply_translation(np.array([0, 0, 2]))
+    # cone_mesh.apply_transform(trimesh.transformations.rotation_matrix(np.pi, [0, 1, 0]))
+    hole_mesh = trimesh.boolean.union([hole_mesh, cone_mesh])
+    # hole_mesh.show()
     hole_mesh.visual.face_colors = [0.5, 0.5, 0.5, 0.5]
     hole_mesh.apply_transform(trimesh.transformations.rotation_matrix(np.pi, [0, 1, 0]))
-    hole_mesh.apply_translation(np.concatenate([hole_pos[:2], np.array([5])]))
+    hole_mesh.apply_translation(np.concatenate([hole_pos[:2], np.array([3.1 + hole_pos[2]])]))
     terrain_with_hole_mesh = trimesh.boolean.difference([terrain_mesh, hole_mesh])
     terrain_with_hole_mesh.export(os.path.join(cur_path, TERRAIN_WITH_HOLE_FILE))
 
