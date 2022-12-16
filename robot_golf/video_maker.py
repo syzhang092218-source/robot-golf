@@ -38,7 +38,6 @@ def make_video_linear(
             if movement is not None:
                 movement()
             if i_step % step_per_frame == 0:
-        # for i_frame in range(n_frame):
                 projectionMatrix = p.computeProjectionMatrixFOV(
                     fov=fov_init + i_frame * fov_step,
                     aspect=width / height,

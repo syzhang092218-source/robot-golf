@@ -1,5 +1,3 @@
-import trimesh
-import os
 import pybullet as p
 import numpy as np
 
@@ -58,14 +56,12 @@ def solve_v_align_ik(robot_id, club_link_id, X_WL, v_ball_init, ball_center):
     R_WV = p.getQuaternionFromEuler([0, 0, np.arctan(v_ball_init[1]/v_ball_init[0])])
     X_WV = [[ball_center[0], ball_center[1], 0], R_WV]
     X_VW = p.invertTransform(X_WV[0], X_WV[1])
-    # v_V = p.multiplyTransforms([0, 0, 0], X_VW[1], v_ball_init, [0, 0, 0, 1])
 
     # init value set to v-align frame
     x_W, y_W, theta_W = [p.getJointState(robot_id, i)[0] for i in range(3)]
     joints_V = p.multiplyTransforms(X_VW[0], X_VW[1], [x_W, y_W, 0], p.getQuaternionFromEuler([0, 0, theta_W]))
     p.resetJointState(robot_id, 0, joints_V[0][0])
     p.resetJointState(robot_id, 1, joints_V[0][1])
-    # p.resetJointState(robot_id, 2, p.getEulerFromQuaternion(joints_V[1])[2])
 
     # IK
     X_VL = p.multiplyTransforms(X_VW[0], X_VW[1], X_WL[0], X_WL[1])
@@ -74,7 +70,6 @@ def solve_v_align_ik(robot_id, club_link_id, X_WL, v_ball_init, ball_center):
     # set back to world frame
     p.resetJointState(robot_id, 0, x_W)
     p.resetJointState(robot_id, 1, y_W)
-    # p.resetJointState(robot_id, 2, theta_W)
 
     # back to world frame
     sol_W = p.multiplyTransforms(X_WV[0], X_WV[1], [sol_V[0], sol_V[1], 0], p.getQuaternionFromEuler([0, 0, sol_V[2]]))

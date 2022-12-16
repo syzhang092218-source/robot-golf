@@ -1,10 +1,7 @@
 import os
 import pybullet as p
-import pybullet_data
 
 from .terrain import make_terrain
-
-
 from .prefix import IIWA_FILE, BALL_FILE, BALL_COLLISION_RADIUS
 
 

@@ -2,6 +2,7 @@ manipulation/
 robot_golf/env/data/terrain/terrain_with_hole.obj
 video/
 sys_id_log/
+sys_id_model
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

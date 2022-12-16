@@ -1,11 +1,8 @@
 import pybullet as p
-import time
 import numpy as np
 
 from .env import create_env
-from .env.prefix import GRAVITY, BALL_COLLISION_RADIUS, TIMESTEP
-from .env.ball import ball_aerodynamics
-from .planner.robot import get_club_init_transform
+from .env.prefix import GRAVITY, TIMESTEP
 from .planner.ball import solve_init_velocity
 
 
@@ -26,6 +23,7 @@ def set_simulator(ball_pos):
     for _ in range(int(1/TIMESTEP)):
         p.stepSimulation()
 
+    # calculate desired initial velocity
     v_ball_init, dt = solve_init_velocity(
         hole_pos=hole_pos - np.array(p.getBasePositionAndOrientation(ball_id)[0]),
         hole_radius=0.1,
@@ -33,8 +31,6 @@ def set_simulator(ball_pos):
         max_land_angle=np.pi / 2 * 0.15,
         v_constraint=[np.array([-100000, -100000, 0]), np.array([100000, 100000, 100000])]
     )
-
-    # v_ball_init = np.array([1, 0, 0])
 
     ball_center = np.array(p.getBasePositionAndOrientation(ball_id)[0])
 

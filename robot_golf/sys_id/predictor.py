@@ -81,12 +81,6 @@ class QDotPredictor(nn.Module):
         super(QDotPredictor, self).__init__()
         self.v_mean = torch.tensor([3.42963496, 0.43245987, 11.179429]).to(device)
         self.v_std = torch.tensor([0.46331278, 0.26750121, 1.32229425]).to(device)
-        # self.q1_pred = NormalizedMLP(
-        #     in_dim=3, out_dim=1, input_mean=self.v_mean, input_std=self.v_std, hidden_layers=(32, 32)
-        # )
-        # self.q2_pred = NormalizedMLP(
-        #     in_dim=3, out_dim=1, input_mean=self.v_mean, input_std=self.v_std, hidden_layers=(32, 32)
-        # )
         self.net = NormalizedMLP(
             in_dim=3, out_dim=2, input_mean=self.v_mean, input_std=self.v_std, hidden_layers=(8, 8)
         )

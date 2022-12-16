@@ -1,9 +1,8 @@
 import trimesh
 import os
 import numpy as np
-import copy
 
-from .prefix import CLUB_FILE, HIT_FACE_ID, HIT_POINT_1, HIT_POINT_2, HIT_POINT_3, CLUB_SCALE
+from .prefix import CLUB_FILE, HIT_POINT_1, HIT_POINT_2, HIT_POINT_3, CLUB_SCALE
 
 
 def get_hit_normal_horizon():

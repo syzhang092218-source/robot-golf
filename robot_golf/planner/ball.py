@@ -1,6 +1,5 @@
 import casadi
 import numpy as np
-import matplotlib.pyplot as plt
 
 from ..env.ball import ball_flying_dyn
 
