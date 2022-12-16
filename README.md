@@ -1,4 +1,5 @@
 # robot-golf
+
 Course project for 6.4212 Robotic Manipulation @ MIT, Fall 2022.
 
 [Let the Golf Fly: Playing golf with a KUKA robot arm!](docs/6.4212%20Report%20-%20Let%20the%20Golf%20Fly.pdf)
