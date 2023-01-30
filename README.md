@@ -37,5 +37,5 @@ If one want to train the supervised learning model from scratch, use
 python main.py --train
 ```
 
-# Results:
+## Results:
 Our results are presented on [YouTube](https://youtu.be/MeRavb_BTiU)
